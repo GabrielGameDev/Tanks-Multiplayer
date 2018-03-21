@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class PlayerMotor : MonoBehaviour {
+public class PlayerMotor : NetworkBehaviour
+{
 
 	public float moveSpeed = 150f;
 	public Transform chassis;

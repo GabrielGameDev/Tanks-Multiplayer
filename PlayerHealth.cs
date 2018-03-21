@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class PlayerShoot : NetworkBehaviour {
+public class PlayerHealth : NetworkBehaviour
+{
 
 	// Use this for initialization
 	void Start () {

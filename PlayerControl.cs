@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class PlayerControl : MonoBehaviour {
+public class PlayerControl : NetworkBehaviour
+{
 
 	private PlayerMotor pMotor;
 
@@ -15,6 +17,9 @@ public class PlayerControl : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+
+		if (!isLocalPlayer)
+			return;
 
 		Vector3 inputDirection = GetInput();
 		if(inputDirection.sqrMagnitude > 0.25f)
@@ -36,6 +41,9 @@ public class PlayerControl : MonoBehaviour {
 
 	private void FixedUpdate()
 	{
+		if (!isLocalPlayer)
+			return;
+
 		pMotor.MovePlayer(GetInput());
 	}
 }
