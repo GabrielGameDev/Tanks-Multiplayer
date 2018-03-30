@@ -7,12 +7,13 @@ public class PlayerControl : NetworkBehaviour
 {
 
 	private PlayerMotor pMotor;
+	private PlayerShoot pShoot;
 
 	// Use this for initialization
 	void Start () {
 
 		pMotor = GetComponent<PlayerMotor>();
-
+		pShoot = GetComponent<PlayerShoot>();
 	}
 	
 	// Update is called once per frame
@@ -29,6 +30,11 @@ public class PlayerControl : NetworkBehaviour
 
 		Vector3 turretDir = Utility.GetWorldPointFromScreenPoint(Input.mousePosition, pMotor.turret.position.y) - pMotor.turret.position;
 		pMotor.RotateTurret(turretDir);
+
+		if (Input.GetMouseButton(0))
+		{
+			pShoot.CmdShoot();
+		}
 
 	}
 
