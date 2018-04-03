@@ -1,9 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
 
-public class Bullet : NetworkBehaviour {
+
+public class Bullet : MonoBehaviour {
 
 	public ParticleSystem explosionFX;
 	public int bounces = 2;
@@ -44,8 +44,7 @@ public class Bullet : NetworkBehaviour {
 
 		Destroy(explosionFX.gameObject, 1);
 
-		if(isServer)
-			Destroy(gameObject);
+		Destroy(gameObject);
 
 	}
 
