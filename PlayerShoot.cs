@@ -31,6 +31,7 @@ public class PlayerShoot : NetworkBehaviour {
 			tempBullet.velocity = bulletSpeed * bulletSpawn.transform.forward;
 
 			NetworkServer.Spawn(tempBullet.gameObject);
+
 		}
 	}
 }

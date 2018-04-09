@@ -8,18 +8,20 @@ public class PlayerControl : NetworkBehaviour
 
 	private PlayerMotor pMotor;
 	private PlayerShoot pShoot;
+	private PlayerHealth pHealth;
 
 	// Use this for initialization
 	void Start () {
 
 		pMotor = GetComponent<PlayerMotor>();
 		pShoot = GetComponent<PlayerShoot>();
+		pHealth = GetComponent<PlayerHealth>();
 	}
 	
 	// Update is called once per frame
 	void Update () {
 
-		if (!isLocalPlayer)
+		if (!isLocalPlayer || pHealth.isDead)
 			return;
 
 		Vector3 inputDirection = GetInput();
@@ -47,7 +49,7 @@ public class PlayerControl : NetworkBehaviour
 
 	private void FixedUpdate()
 	{
-		if (!isLocalPlayer)
+		if (!isLocalPlayer || pHealth.isDead)
 			return;
 
 		pMotor.MovePlayer(GetInput());

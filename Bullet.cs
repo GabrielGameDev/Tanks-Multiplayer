@@ -58,6 +58,14 @@ public class Bullet : MonoBehaviour {
 
 	private void OnCollisionEnter(Collision collision)
 	{
+
+		PlayerHealth player = collision.gameObject.GetComponent<PlayerHealth>();
+		if(player != null)
+		{
+			Explode();
+			player.TakeDamage(1);
+		}
+
 		if (bounces <= 0)
 			Explode();
 
