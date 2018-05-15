@@ -13,7 +13,7 @@ public class PlayerMotor : NetworkBehaviour
 	public Transform turret;
 	public float turretRotateSpeed = 6f;
 
-	private Rigidbody rb;
+	public Rigidbody rb;
 
 	// Use this for initialization
 	void Start () {

@@ -6,6 +6,8 @@ using UnityEngine.Networking;
 public class PlayerControl : NetworkBehaviour
 {
 
+	public GameObject spawnFX;
+
 	private PlayerMotor pMotor;
 	private PlayerShoot pShoot;
 	private PlayerHealth pHealth;
@@ -53,5 +55,20 @@ public class PlayerControl : NetworkBehaviour
 			return;
 
 		pMotor.MovePlayer(GetInput());
+	}
+
+	void Disable()
+	{
+		StartCoroutine(Respawn());
+	} 
+
+	IEnumerator Respawn()
+	{
+		transform.position = Vector3.zero;
+		pMotor.rb.velocity = Vector3.zero;
+		yield return new WaitForSeconds(3f);
+		pHealth.Reset();
+		GameObject newSpawnFX = Instantiate(spawnFX, transform.position, Quaternion.identity);
+		Destroy(newSpawnFX, 3f);
 	}
 }
