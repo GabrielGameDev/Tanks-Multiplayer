@@ -8,9 +8,14 @@ public class PlayerControl : NetworkBehaviour
 
 	public GameObject spawnFX;
 
+	public int score;
+
 	private PlayerMotor pMotor;
 	private PlayerShoot pShoot;
 	private PlayerHealth pHealth;
+
+	private NetworkStartPosition[] spawnPoints;
+	private Vector3 originalPosition;
 
 	// Use this for initialization
 	void Start () {
@@ -19,7 +24,13 @@ public class PlayerControl : NetworkBehaviour
 		pShoot = GetComponent<PlayerShoot>();
 		pHealth = GetComponent<PlayerHealth>();
 	}
-	
+
+	public override void OnStartLocalPlayer()
+	{
+		spawnPoints = FindObjectsOfType<NetworkStartPosition>();
+		originalPosition = transform.position;
+	}
+
 	// Update is called once per frame
 	void Update () {
 
@@ -64,11 +75,64 @@ public class PlayerControl : NetworkBehaviour
 
 	IEnumerator Respawn()
 	{
-		transform.position = Vector3.zero;
+		SpawnPoint oldSpawn = GetNearestSpawnPoint();
+		if(oldSpawn != null)
+		{
+			oldSpawn.isOcupied = false;
+		}
+
+		transform.position = GetRandomSpawnPosition();
 		pMotor.rb.velocity = Vector3.zero;
 		yield return new WaitForSeconds(3f);
 		pHealth.Reset();
 		GameObject newSpawnFX = Instantiate(spawnFX, transform.position, Quaternion.identity);
 		Destroy(newSpawnFX, 3f);
+	}
+
+	SpawnPoint GetNearestSpawnPoint()
+	{
+		Collider[] triggerColliders = Physics.OverlapSphere(transform.position, 3f, Physics.AllLayers, QueryTriggerInteraction.Collide);
+		foreach (var c in triggerColliders)
+		{
+			SpawnPoint spawnpoint = c.GetComponent<SpawnPoint>();
+			if(spawnpoint != null)
+			{
+				return spawnpoint;
+			}
+		}
+
+		return null;
+	}
+
+	Vector3 GetRandomSpawnPosition()
+	{
+		if(spawnPoints != null)
+		{
+			bool foundSpawner = false;
+			Vector3 newStartPosition = new Vector3();
+			float timeOut = Time.time + 2f;
+
+			while (!foundSpawner)
+
+			{
+				NetworkStartPosition startPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
+				SpawnPoint spawnPoint = startPoint.GetComponent<SpawnPoint>();
+				if(spawnPoint.isOcupied == false)
+				{
+					newStartPosition = startPoint.transform.position;
+					foundSpawner = true;
+				}
+
+				if(Time.time > timeOut)
+				{
+					foundSpawner = true;
+					newStartPosition = originalPosition;
+				}
+			}
+
+			return newStartPosition;
+		}
+
+		return originalPosition;
 	}
 }
