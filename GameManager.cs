@@ -139,13 +139,15 @@ public class GameManager : NetworkBehaviour {
 
 	public void AddPlayer(PlayerSetup pS)
 	{
-		if(playerCount < maxPlayers)
+		/*if(playerCount < maxPlayers)
 		{
 			allPlayers.Add(pS.GetComponent<PlayerControl>());
 			pS.playerColor = playerColors[playerCount];
 			pS.playerNum = playerCount + 1;
-			playerCount++;
-		}
+			
+		}*/
+
+		playerCount++;
 	}
 
 	[ClientRpc]
