@@ -8,20 +8,18 @@ public class PlayerSetup : NetworkBehaviour
 {
 	[SyncVar(hook = "UpdateColor")]
 	public Color playerColor;
+	[SyncVar(hook = "UpdateName")]
 	public string baseName = "PLAYER";
 
-	[SyncVar(hook = "UpdateName")]
-	public int playerNum = 1;
+	
+	//public int playerNum = 1;
 	public Text playerNameText;
 
 	// Use this for initialization
 	void Start () {
 
-		if (!isLocalPlayer)
-		{
-			UpdateName(playerNum);
-			UpdateColor(playerColor);
-		}
+		UpdateName(baseName);
+		UpdateColor(playerColor);
 
 
 	}
@@ -61,9 +59,9 @@ public class PlayerSetup : NetworkBehaviour
 		}
 	}
 
-	void UpdateName(int pNum)
+	void UpdateName(string nome)
 	{
 		playerNameText.enabled = true;
-		playerNameText.text = baseName + pNum;
+		playerNameText.text = nome;
 	}
 }
