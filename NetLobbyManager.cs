@@ -15,5 +15,11 @@ public class NetLobbyManager : LobbyHook {
 		pSetup.baseName = lPlayer.playerName;
 		pSetup.playerColor = lPlayer.playerColor;
 
+		PlayerControl pControl = gamePlayer.GetComponent<PlayerControl>();
+		if(pControl != null)
+		{
+			GameManager.allPlayers.Add(pControl);
+		}
+
 	}
 }

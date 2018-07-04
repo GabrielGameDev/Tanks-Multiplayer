@@ -8,11 +8,13 @@ public class PlayerControl : NetworkBehaviour
 
 	public GameObject spawnFX;
 
+	[SyncVar]
 	public int score;
 
 	private PlayerMotor pMotor;
 	private PlayerShoot pShoot;
 	private PlayerHealth pHealth;
+	public PlayerSetup pSetup;
 
 	private NetworkStartPosition[] spawnPoints;
 	private Vector3 originalPosition;
@@ -23,6 +25,7 @@ public class PlayerControl : NetworkBehaviour
 		pMotor = GetComponent<PlayerMotor>();
 		pShoot = GetComponent<PlayerShoot>();
 		pHealth = GetComponent<PlayerHealth>();
+		pSetup = GetComponent<PlayerSetup>();
 	}
 
 	public override void OnStartLocalPlayer()
@@ -51,6 +54,11 @@ public class PlayerControl : NetworkBehaviour
 			pShoot.CmdShoot();
 		}
 
+	}
+
+	private void OnDestroy()
+	{
+		GameManager.allPlayers.Remove(this);
 	}
 
 	Vector3 GetInput()

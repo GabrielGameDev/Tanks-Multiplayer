@@ -11,44 +11,27 @@ public class PlayerSetup : NetworkBehaviour
 	[SyncVar(hook = "UpdateName")]
 	public string baseName = "PLAYER";
 
-	
-	//public int playerNum = 1;
 	public Text playerNameText;
 
-	// Use this for initialization
-	void Start () {
-
-		UpdateName(baseName);
-		UpdateColor(playerColor);
-
-
-	}
 	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 
 	public override void OnStartClient()
 	{
 		base.OnStartClient();
-		playerNameText.enabled = false;
+
+		if (!isServer)
+		{
+			PlayerControl pControl = GetComponent<PlayerControl>();
+			if (pControl != null)
+			{
+				GameManager.allPlayers.Add(pControl);
+			}
+		}
+
+		UpdateName(baseName);
+		UpdateColor(playerColor);
 	}
 
-	public override void OnStartLocalPlayer()
-	{
-		base.OnStartLocalPlayer();
-
-		CmdSetupPlayer();
-
-		
-	}
-
-	[Command]
-	void CmdSetupPlayer()
-	{
-		GameManager.instance.AddPlayer(this);
-	}
 
 	void UpdateColor(Color color)
 	{

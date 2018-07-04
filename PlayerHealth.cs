@@ -13,6 +13,8 @@ public class PlayerHealth : NetworkBehaviour
 	public bool isDead = false;
 	public RectTransform healthBar;
 
+	public PlayerControl lastAttacker;
+
 	[SyncVar(hook = "UpdateHealthBar")]
 	private float currentHealth;
 	private float healthBarXSize;
@@ -36,16 +38,30 @@ public class PlayerHealth : NetworkBehaviour
 		
 	}
 
-	public void TakeDamage(float damage)
+	public void TakeDamage(float damage, PlayerControl pc = null)
 	{
 
 		if (!isServer)
 			return;
 
+		if(pc != null && pc != this.GetComponent<PlayerControl>())
+		{
+			lastAttacker = pc;
+		}
+
 		currentHealth -= damage;
 		
 		if(currentHealth <= 0 && !isDead)
 		{
+
+			if(lastAttacker != null)
+			{
+				lastAttacker.score++;
+				lastAttacker = null;
+			}
+
+			//GameManager.instance.UpdateScore();
+
 			isDead = true;
 			RpcDie();
 		}

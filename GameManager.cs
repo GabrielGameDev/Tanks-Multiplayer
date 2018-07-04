@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using Prototype.NetworkLobby;
 
 public class GameManager : NetworkBehaviour {
 
@@ -10,17 +11,9 @@ public class GameManager : NetworkBehaviour {
 
 	public Text messageText;
 
-	public int minPlayers = 2;
-	public int maxPlayers = 4;
-
-	[SyncVar]
-	public int playerCount = 0;
-
-	public List<PlayerControl> allPlayers;
+	public static List<PlayerControl> allPlayers = new List<PlayerControl>();
 	public List<Text> nameText;
 	public List<Text> playerScoreText;
-
-	public Color[] playerColors;
 
 	public int maxScore = 3;
 
@@ -43,7 +36,7 @@ public class GameManager : NetworkBehaviour {
 		DontDestroyOnLoad(gameObject);
 	}
 
-	// Use this for initialization
+	[Server]
 	void Start () {
 
 		StartCoroutine(GameLoopRoutine());
@@ -57,45 +50,71 @@ public class GameManager : NetworkBehaviour {
 
 	IEnumerator GameLoopRoutine()
 	{
-		yield return StartCoroutine(EnterLobby());
+		LobbyManager lManager = LobbyManager.s_Singleton;
+		if(lManager != null)
+		{
+			while (allPlayers.Count < lManager._playerNumber)
+			{
+				yield return null;
+			}
+		}
+
+		yield return StartCoroutine(StartGame());
 		yield return StartCoroutine(PlayGame());
 		yield return StartCoroutine(EndGame());
 		StartCoroutine(GameLoopRoutine());
 	}
 
-	IEnumerator EnterLobby()
+	[ClientRpc]
+	void RpcStartGame()
 	{
-		
-		
-		while (playerCount < minPlayers)
-		{
-			UpdateMessage("Esperando jogadores...");
-			DisablePlayers();
-			yield return null;
-		}
+		UpdateMessage("Lutem!");
+		DisablePlayers();
+	}
+
+	IEnumerator StartGame()
+	{
+
+		Reset();
+		RpcStartGame();
+		yield return new WaitForSeconds(2f);
 
 		
+	}
+
+	[ClientRpc]
+	void RpcPlayGame()
+	{
+		EnablePlayers();
+		UpdateMessage("");
 	}
 
 	IEnumerator PlayGame()
 	{
-		UpdateMessage("");
-		EnablePlayers();
-		UpdateScore();
+		RpcPlayGame();
+		
 		while (!gameOver)
 		{
+			CheckScores();
 			yield return null;
 		}
 	}
 
-	IEnumerator EndGame()
+	[ClientRpc]
+	void RpcEndGame()
 	{
 		DisablePlayers();
-		UpdateMessage("GAME OVER \n" + winner.pSetup.playerNameText.text + " venceu!");
+	}
+
+	IEnumerator EndGame()
+	{
+		RpcEndGame();
+		UpdateMessage("GAME OVER \n" + winner.pSetup.baseName + " venceu!");
+		yield return new WaitForSeconds(3f);
 		Reset();
-		yield return new WaitForSeconds(3f);
-		UpdateMessage("Reiniciando...");
-		yield return new WaitForSeconds(3f);
+		LobbyManager.s_Singleton._playerNumber = 0;
+		LobbyManager.s_Singleton.SendReturnToLobby();
+		
 
 	}
 
@@ -103,53 +122,39 @@ public class GameManager : NetworkBehaviour {
 	[ClientRpc]
 	void RpcUpdateMessage(string msg)
 	{
-		messageText.gameObject.SetActive(true);
-		messageText.text = msg;
+		UpdateMessage(msg);
 	}
 
 	public void UpdateMessage(string msg)
 	{
-		if (isServer)
-		{
-			RpcUpdateMessage(msg);
-		}
-	}
 
-	[ClientRpc]
-	void RpcSetPlayerState(bool state)
-	{
-		PlayerControl[] allPlayers = FindObjectsOfType<PlayerControl>();
-		foreach (PlayerControl p in allPlayers)
-		{
-			p.enabled = state;
-		}
+		messageText.gameObject.SetActive(true);
+		messageText.text = msg;
+		
 	}
+		
 
 	void EnablePlayers()
 	{
-		if(isServer)
-			RpcSetPlayerState(true);
+		
 	}
 
 	void DisablePlayers()
 	{
-		if(isServer)
-			RpcSetPlayerState(false);
+		
 	}
 
-	public void AddPlayer(PlayerSetup pS)
+	
+	public void CheckScores()
 	{
-		/*if(playerCount < maxPlayers)
+		winner = GetWinner();
+		if(winner != null)
 		{
-			allPlayers.Add(pS.GetComponent<PlayerControl>());
-			pS.playerColor = playerColors[playerCount];
-			pS.playerNum = playerCount + 1;
-			
-		}*/
-
-		playerCount++;
+			gameOver = true;
+		}
 	}
 
+	/*
 	[ClientRpc]
 	void RpcUpdateScore(int[] playerScores, string[] playerNames)
 	{
@@ -179,42 +184,30 @@ public class GameManager : NetworkBehaviour {
 
 			RpcUpdateScore(scores, names);
 		}
-	}
+	}*/
 
 	PlayerControl GetWinner()
 	{
-		if (isServer)
+		
+		for (int i = 0; i < allPlayers.Count; i++)
 		{
-			for (int i = 0; i < playerCount; i++)
+			if(allPlayers[i].score >= maxScore)
 			{
-				if(allPlayers[i].score >= maxScore)
-				{
-					return allPlayers[i];
-				}
+				return allPlayers[i];
 			}
-		}
+		}		
 
 		return null;
 	}
 
 	void Reset()
 	{
-		if (isServer)
+		for (int i = 0; i < allPlayers.Count; i++)
 		{
-			RpcReset();
-			UpdateScore();
-			winner = null;
-			gameOver = false;
+			PlayerHealth pHealth = allPlayers[i].GetComponent<PlayerHealth>();
+			pHealth.Reset();
+			allPlayers[i].score = 0;
 		}
 	}
 
-	[ClientRpc]
-	void RpcReset()
-	{
-		PlayerControl[] players = FindObjectsOfType<PlayerControl>();
-		foreach (var player in players)
-		{
-			player.score = 0;
-		}
-	}
 }
