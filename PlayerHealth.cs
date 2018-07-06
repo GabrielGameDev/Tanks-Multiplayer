@@ -28,7 +28,7 @@ public class PlayerHealth : NetworkBehaviour
 
 	void Start () {
 
-		currentHealth = maxHealth;
+		Reset();
 		
 
 	}

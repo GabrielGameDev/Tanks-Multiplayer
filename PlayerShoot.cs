@@ -11,25 +11,33 @@ public class PlayerShoot : NetworkBehaviour {
 	public Transform bulletSpawn;
 
 	private float nextFire;
-	// Use this for initialization
-	void Start () {
-		
-	}
+	private bool canShoot = false;
 	
-	// Update is called once per frame
-	void Update () {
-		
+
+	public void Enable()
+	{
+		canShoot = true;
+	}
+
+	public void Disable()
+	{
+		canShoot = false;
 	}
 
 	[Command]
 	public void CmdShoot()
 	{
+		if (!canShoot)
+		{
+			return;
+		}
+
 		if(Time.time > nextFire)
 		{
 			nextFire = Time.time + fireRate;
 			Rigidbody tempBullet = Instantiate(bulletPrefab, bulletSpawn.position, bulletSpawn.rotation);
 			tempBullet.velocity = bulletSpeed * bulletSpawn.transform.forward;
-
+			tempBullet.GetComponent<Bullet>().owner = GetComponent<PlayerControl>();
 			NetworkServer.Spawn(tempBullet.gameObject);
 
 		}

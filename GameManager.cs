@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -136,12 +136,24 @@ public class GameManager : NetworkBehaviour {
 
 	void EnablePlayers()
 	{
-		
+		for (int i = 0; i < allPlayers.Count; i++)
+		{
+			if(allPlayers[i] != null)
+			{
+				allPlayers[i].EnableControls();
+			}
+		}
 	}
 
 	void DisablePlayers()
 	{
-		
+		for (int i = 0; i < allPlayers.Count; i++)
+		{
+			if (allPlayers[i] != null)
+			{
+				allPlayers[i].DisableControls();
+			}
+		}
 	}
 
 	

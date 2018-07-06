@@ -15,6 +15,8 @@ public class PlayerMotor : NetworkBehaviour
 
 	public Rigidbody rb;
 
+	private bool canMove = false;
+
 	// Use this for initialization
 	void Start () {
 
@@ -23,14 +25,30 @@ public class PlayerMotor : NetworkBehaviour
 	}
 	
 	
+	public void Enable()
+	{
+		canMove = true;
+	}
+
+	public void Disable()
+	{
+		canMove = false;
+	}
+
 	public void MovePlayer(Vector3 dir)
 	{
+		if (!canMove)
+			return;
+
 		Vector3 moveDirection = dir * moveSpeed * Time.deltaTime;
 		rb.velocity = moveDirection;
 	}
 
 	public void FaceDirection(Transform xForm, Vector3 dir, float rotSpeed)
 	{
+		if (!canMove)
+			return;
+
 		if(dir != Vector3.zero && xForm != null)
 		{
 			Quaternion desiredRot = Quaternion.LookRotation(dir);

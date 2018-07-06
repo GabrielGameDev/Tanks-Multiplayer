@@ -95,6 +95,8 @@ public class PlayerControl : NetworkBehaviour
 		pHealth.Reset();
 		GameObject newSpawnFX = Instantiate(spawnFX, transform.position, Quaternion.identity);
 		Destroy(newSpawnFX, 3f);
+
+		EnableControls();
 	}
 
 	SpawnPoint GetNearestSpawnPoint()
@@ -142,5 +144,17 @@ public class PlayerControl : NetworkBehaviour
 		}
 
 		return originalPosition;
+	}
+
+	public void EnableControls()
+	{
+		pMotor.Enable();
+		pShoot.Enable();
+	}
+
+	public void DisableControls()
+	{
+		pMotor.Disable();
+		pShoot.Disable();
 	}
 }
