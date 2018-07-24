@@ -33,7 +33,6 @@ public class GameManager : NetworkBehaviour {
 			Destroy(gameObject);
 		}
 
-		DontDestroyOnLoad(gameObject);
 	}
 
 	[Server]
@@ -58,7 +57,7 @@ public class GameManager : NetworkBehaviour {
 				yield return null;
 			}
 		}
-
+		yield return new WaitForSeconds(2f);
 		yield return StartCoroutine(StartGame());
 		yield return StartCoroutine(PlayGame());
 		yield return StartCoroutine(EndGame());
@@ -77,6 +76,7 @@ public class GameManager : NetworkBehaviour {
 
 		Reset();
 		RpcStartGame();
+		UpdateScore();
 		yield return new WaitForSeconds(2f);
 
 		
@@ -109,7 +109,7 @@ public class GameManager : NetworkBehaviour {
 	IEnumerator EndGame()
 	{
 		RpcEndGame();
-		UpdateMessage("GAME OVER \n" + winner.pSetup.baseName + " venceu!");
+		RpcUpdateMessage("GAME OVER \n" + winner.pSetup.baseName + " venceu!");
 		yield return new WaitForSeconds(3f);
 		Reset();
 		LobbyManager.s_Singleton._playerNumber = 0;
@@ -166,11 +166,11 @@ public class GameManager : NetworkBehaviour {
 		}
 	}
 
-	/*
+	
 	[ClientRpc]
 	void RpcUpdateScore(int[] playerScores, string[] playerNames)
 	{
-		for (int i = 0; i < playerCount; i++)
+		for (int i = 0; i < allPlayers.Count; i++)
 		{
 			playerScoreText[i].text = playerScores[i].ToString();
 			nameText[i].text = playerNames[i];
@@ -181,22 +181,21 @@ public class GameManager : NetworkBehaviour {
 	{
 		if (isServer)
 		{
-			winner = GetWinner();
-			if(winner != null)
+			string[] pNames = new string[allPlayers.Count];
+			int[] pScores = new int[allPlayers.Count];
+
+			for (int i = 0; i < allPlayers.Count; i++)
 			{
-				gameOver = true;
-			}
-			int[] scores = new int[playerCount];
-			string[] names = new string[playerCount];
-			for (int i = 0; i < playerCount; i++)
-			{
-				scores[i] = allPlayers[i].score;
-				names[i] = allPlayers[i].GetComponent<PlayerSetup>().playerNameText.text;
+				if(allPlayers[i] != null)
+				{
+					pNames[i] = allPlayers[i].GetComponent<PlayerSetup>().baseName;
+					pScores[i] = allPlayers[i].score;
+				}
 			}
 
-			RpcUpdateScore(scores, names);
+			RpcUpdateScore(pScores, pNames);
 		}
-	}*/
+	}
 
 	PlayerControl GetWinner()
 	{
